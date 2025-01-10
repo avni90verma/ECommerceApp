@@ -20,18 +20,24 @@ class ProductViewModel @Inject constructor(private val repository: ProductReposi
     private val _product = MutableStateFlow(emptyList<Product>())
     val product: StateFlow<List<Product>> = _product.asStateFlow()
 
+    val isLoading = MutableStateFlow(false)
+
     init{
         fetchProducts()
     }
 
     private fun fetchProducts() {
         viewModelScope.launch {
+            isLoading.value = true
             try {
                 val result = repository.getProducts()
                 _product.value = result
             }
             catch (e:Exception){
                 Log.e("TAG","Error in fetchProducts:${e.message}")
+            }
+            finally {
+                isLoading.value = false
             }
         }
     }
